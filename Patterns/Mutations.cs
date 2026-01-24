@@ -62,21 +62,36 @@ namespace EvolutionProject
 
         }
 
-        public static Specie reproductionMethod(Specie specie, List<Specie> population)
+        public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population)
         {
-            if(population.Count >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity)
+
+            var populationCount = 0;
+
+            foreach(List<Specie> species in population.Values)
+            {
+
+                foreach(Specie _specie in species){
+
+                    populationCount++;
+
+                }
+
+            }
+
+
+            if(populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity)
             {
 
                 return null;
 
             }
 
-            var x = 0.4f + getColorDistance(specie.getColor(), specie.getColor());
+            var x = getColorDistance(specie.getColor(), specie.getColor());
 
             if(Random.Shared.Next(0, 100) <= x * 100)
             {
 
-                var y = findSimilarSpecie(specie, population);
+                var y = findSimilarSpecie(specie, GetPossibleMatches(specie, population));
                 if(y != null)
                 {
 
@@ -95,12 +110,12 @@ namespace EvolutionProject
         public static Specie findSimilarSpecie(Specie specie, List<Specie> population)
         {
 
-            var attempts = 40;
+            
 
-            for(int i = 0; i < attempts; i++)
+            for(int i = 0; i < population.Count; i++)
             {
 
-                var x = population[Random.Shared.Next(0, population.Count - 1)];
+                var x = population[i];
 
                 if(x != specie)
                 {
@@ -148,6 +163,35 @@ namespace EvolutionProject
 
         }
 
+        public static List<Specie> GetPossibleMatches(Specie specie, Dictionary<int, List<Specie>> population) {
 
-    }
+            var candidates = new List<Specie>();
+            var _populationHashFactor = DefaultValues.maxReprodutionDistance * 10;
+            var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashFactor));
+            var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashFactor));
+            var HashIndex = XHashIndex * 1000 + YHashIndex;
+
+            for (int i = 0; i <= 1; i++)
+            {
+
+                for (int j = 0; j <= 1; j++)
+                {
+
+                    if (population.ContainsKey(HashIndex + (i * 1000) + j))
+                    {
+
+                        foreach (Specie _specie in population[HashIndex + (i * 1000) + j])
+                        {
+
+                            candidates.Add(_specie);
+
+                        }
+
+                    }
+                }
+            }
+
+            return candidates;
+
+        }
 }
