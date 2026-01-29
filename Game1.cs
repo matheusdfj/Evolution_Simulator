@@ -16,6 +16,7 @@ namespace EvolutionProject
         private Boolean _firstIteration = true;
         private Texture2D _texturaFundo;
         private int _yearsCount = 0;
+        private int _populationCount = DefaultValues.startPopulation;
         private Dictionary<int, List<Specie>> _population;
         private int _populationHashWidth, _populationHashHeight, _populationHashFactor;
 
@@ -25,7 +26,11 @@ namespace EvolutionProject
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            // Quanto maior, mais grids
             _populationHashFactor = DefaultValues.maxReprodutionDistance * 10;
+
+            // Quanto maior, menos grids
             _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
             _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
 
@@ -181,9 +186,9 @@ namespace EvolutionProject
                     if (!_firstIteration)
                     {
 
-                        specie.setPosition(Mutations.positionMutation(specie.getPosition()));
+                        //specie.setPosition(Mutations.positionMutation(specie.getPosition()));
                         specie.setRemainingLifeTime();
-                        var y = Mutations.reproductionMethod(specie, _population);
+                        var y = Mutations.reproductionMethod(specie, _population, _populationCount);
                         if (y != null)
                         {
 
@@ -199,6 +204,7 @@ namespace EvolutionProject
                             }
 
                             x[HashIndex].Add(y);
+                            _populationCount++;
 
                         }
 
@@ -212,6 +218,7 @@ namespace EvolutionProject
                         var HashIndex = XHashIndex * 1000 + YHashIndex;
 
                         _population[HashIndex].RemoveAt(i);
+                        _populationCount--;
 
                     }
 

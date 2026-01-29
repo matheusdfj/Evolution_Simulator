@@ -62,38 +62,21 @@ namespace EvolutionProject
 
         }
 
-        public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population)
+        public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population, int populationCount)
         {
 
-            var populationCount = 0;
-
-            foreach(List<Specie> species in population.Values)
-            {
-
-                foreach(Specie _specie in species){
-
-                    populationCount++;
-
-                }
-
-            }
+            if (populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return null;
 
 
-            if(populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity)
-            {
+            var x = 0.4f + getColorDistance(specie.getColor(), specie.getColor());
 
-                return null;
-
-            }
-
-            var x = getColorDistance(specie.getColor(), specie.getColor());
-
-            if(Random.Shared.Next(0, 100) <= x * 100)
+            if (Random.Shared.Next(0, 100) <= x * 100)
             {
 
                 var y = findSimilarSpecie(specie, GetPossibleMatches(specie, population));
-                if(y != null)
+                if (y != null)
                 {
+                    if (y.getHasChildThisYear()) return null;
 
                     specie.setHasChildThisYear(true);
                     y.setHasChildThisYear(true);
@@ -110,22 +93,20 @@ namespace EvolutionProject
         public static Specie findSimilarSpecie(Specie specie, List<Specie> population)
         {
 
-            
-
-            for(int i = 0; i < population.Count; i++)
+            for (int i = 0; i < population.Count; i++)
             {
 
                 var x = population[i];
 
-                if(x != specie)
+                if (x != specie)
                 {
 
-                    if(Math.Abs(specie.getColor().R - x.getColor().R) < DefaultValues.maxReprodutionDistance &&
+                    if (Math.Abs(specie.getColor().R - x.getColor().R) < DefaultValues.maxReprodutionDistance &&
                         Math.Abs(specie.getColor().G - x.getColor().G) < DefaultValues.maxReprodutionDistance &&
                         Math.Abs(specie.getColor().B - x.getColor().B) < DefaultValues.maxReprodutionDistance)
                     {
 
-                        if(Math.Abs(specie.getPosition().X - x.getPosition().X) < DefaultValues.maxReproductionPosition &&
+                        if (Math.Abs(specie.getPosition().X - x.getPosition().X) < DefaultValues.maxReproductionPosition &&
                             Math.Abs(specie.getPosition().Y - x.getPosition().Y) < DefaultValues.maxReproductionPosition)
                         {
 
@@ -163,7 +144,8 @@ namespace EvolutionProject
 
         }
 
-        public static List<Specie> GetPossibleMatches(Specie specie, Dictionary<int, List<Specie>> population) {
+        public static List<Specie> GetPossibleMatches(Specie specie, Dictionary<int, List<Specie>> population)
+        {
 
             var candidates = new List<Specie>();
             var _populationHashFactor = DefaultValues.maxReprodutionDistance * 10;
@@ -194,4 +176,5 @@ namespace EvolutionProject
             return candidates;
 
         }
+    }
 }

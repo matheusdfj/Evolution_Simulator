@@ -14,8 +14,8 @@ namespace EvolutionProject
 
         public static Xna.Color defaultColor = new Xna.Color(120, 120, 120);
         public static int defaultLifeTime = 500;
-        public static int startPopulation = 20;
-        public static int maxPopulation = 200;
+        public static int startPopulation = 200;
+        public static int maxPopulation = 2000;
         public static int colorVariationValue = 10;
         public static int positionVariationValue = 15;
         public static int maxReprodutionDistance = 10;
