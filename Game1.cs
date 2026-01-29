@@ -28,7 +28,7 @@ namespace EvolutionProject
             IsMouseVisible = true;
 
             // Quanto menor, mais grids
-            _populationHashFactor = DefaultValues.maxReprodutionDistance * 1;
+            _populationHashFactor = DefaultValues.HASH_GRID_SIZE;
 
             // Quanto maior, menos grids
             // 192
@@ -45,7 +45,7 @@ namespace EvolutionProject
 
 
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1d / 20d);
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / 15d);
 
 
             _graphics.ApplyChanges();

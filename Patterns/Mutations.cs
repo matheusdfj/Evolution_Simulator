@@ -64,11 +64,9 @@ namespace EvolutionProject
         public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population, int populationCount)
         {
 
-            // (Especie Atual Gerada na IT 1, Fact Population, Fact Population Count + Current new Population Cached)
-
             if (populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return null;
 
-            var x = 0.4f;
+            var x = DefaultValues.REPRODUCTION_FACTOR;
 
             if (Random.Shared.Next(0, 100) <= x * 100)
             {
@@ -128,7 +126,7 @@ namespace EvolutionProject
         {
 
             var candidates = new List<Specie>();
-            var _populationHashFactor = DefaultValues.maxReprodutionDistance;
+            var _populationHashFactor = DefaultValues.HASH_GRID_SIZE;
             var _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
             var _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
             var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
