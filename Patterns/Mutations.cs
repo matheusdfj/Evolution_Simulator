@@ -57,7 +57,6 @@ namespace EvolutionProject
             var b = color1.B - color2.B;
 
             var x = (r * r + g * g + b * b) / 195075;
-
             return x;
 
         }
@@ -65,10 +64,11 @@ namespace EvolutionProject
         public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population, int populationCount)
         {
 
+            // (Especie Atual Gerada na IT 1, Fact Population, Fact Population Count + Current new Population Cached)
+
             if (populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return null;
 
-
-            var x = 0.4f + getColorDistance(specie.getColor(), specie.getColor());
+            var x = 0.4f;
 
             if (Random.Shared.Next(0, 100) <= x * 100)
             {
@@ -76,7 +76,6 @@ namespace EvolutionProject
                 var y = findSimilarSpecie(specie, GetPossibleMatches(specie, population));
                 if (y != null)
                 {
-                    if (y.getHasChildThisYear()) return null;
 
                     specie.setHasChildThisYear(true);
                     y.setHasChildThisYear(true);
@@ -101,13 +100,13 @@ namespace EvolutionProject
                 if (x != specie)
                 {
 
-                    if (Math.Abs(specie.getColor().R - x.getColor().R) < DefaultValues.maxReprodutionDistance &&
-                        Math.Abs(specie.getColor().G - x.getColor().G) < DefaultValues.maxReprodutionDistance &&
-                        Math.Abs(specie.getColor().B - x.getColor().B) < DefaultValues.maxReprodutionDistance)
+                    if (Math.Abs(specie.getColor().R - x.getColor().R) <= DefaultValues.maxReprodutionDistance &&
+                        Math.Abs(specie.getColor().G - x.getColor().G) <= DefaultValues.maxReprodutionDistance &&
+                        Math.Abs(specie.getColor().B - x.getColor().B) <= DefaultValues.maxReprodutionDistance)
                     {
 
-                        if (Math.Abs(specie.getPosition().X - x.getPosition().X) < DefaultValues.maxReproductionPosition &&
-                            Math.Abs(specie.getPosition().Y - x.getPosition().Y) < DefaultValues.maxReproductionPosition)
+                        if (Math.Abs(specie.getPosition().X - x.getPosition().X) <= DefaultValues.maxReproductionPosition &&
+                            Math.Abs(specie.getPosition().Y - x.getPosition().Y) <= DefaultValues.maxReproductionPosition)
                         {
 
                             return x;
@@ -122,25 +121,6 @@ namespace EvolutionProject
             }
 
             return null;
-            /*
-            var z = population.FindAll(y =>
-            Math.Abs(specie.getColor().R - y.getColor().R) < DefaultValues.maxReprodutionDistance &&
-            Math.Abs(specie.getColor().G - y.getColor().G) < DefaultValues.maxReprodutionDistance &&
-            Math.Abs(specie.getColor().B - y.getColor().B) < DefaultValues.maxReprodutionDistance &&
-            Math.Abs(specie.getPosition().X - y.getPosition().X) < DefaultValues.maxReproductionPosition &&
-            Math.Abs(specie.getPosition().Y - y.getPosition().Y) < DefaultValues.maxReproductionPosition &&
-            y != specie
-            );
-
-            if(x.Count != 0)
-            {
-
-                return x[Random.Shared.Next(0, x.Count)];
-
-            }
-
-            return null;
-            */
 
         }
 
@@ -148,31 +128,37 @@ namespace EvolutionProject
         {
 
             var candidates = new List<Specie>();
-            var _populationHashFactor = DefaultValues.maxReprodutionDistance * 10;
-            var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashFactor));
-            var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashFactor));
+            var _populationHashFactor = DefaultValues.maxReprodutionDistance;
+            var _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
+            var _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
+            var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+            var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
             var HashIndex = XHashIndex * 1000 + YHashIndex;
 
-            for (int i = 0; i <= 1; i++)
+            for(int i = -1; i <= 1; i++)
             {
 
-                for (int j = 0; j <= 1; j++)
+                for(int j = -1; j <= 1; j++)
                 {
 
-                    if (population.ContainsKey(HashIndex + (i * 1000) + j))
+                    var currentKey = HashIndex + (i * 1000) + j;
+
+                    if (population.ContainsKey(currentKey))
                     {
 
-                        foreach (Specie _specie in population[HashIndex + (i * 1000) + j])
+                        foreach(Specie _specie in population[currentKey])
                         {
-
-                            candidates.Add(_specie);
-
+                            if(_specie != specie) candidates.Add(_specie);
                         }
 
+
                     }
+
                 }
+
             }
 
+            Console.WriteLine("Total Enviado: " + candidates.Count);
             return candidates;
 
         }

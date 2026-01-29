@@ -27,11 +27,13 @@ namespace EvolutionProject
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Quanto maior, mais grids
-            _populationHashFactor = DefaultValues.maxReprodutionDistance * 10;
+            // Quanto menor, mais grids
+            _populationHashFactor = DefaultValues.maxReprodutionDistance * 1;
 
             // Quanto maior, menos grids
+            // 192
             _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
+            // 108
             _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
 
 
@@ -43,7 +45,7 @@ namespace EvolutionProject
 
 
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1d / 45d);
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / 20d);
 
 
             _graphics.ApplyChanges();
@@ -136,8 +138,8 @@ namespace EvolutionProject
             {
 
                 var specie = new Specie();
-                var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashFactor));
-                var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashFactor));
+                var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+                var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
                 var HashIndex = XHashIndex * 1000 + YHashIndex;
                 if(!_population.ContainsKey(HashIndex)){
 
@@ -188,12 +190,13 @@ namespace EvolutionProject
 
                         //specie.setPosition(Mutations.positionMutation(specie.getPosition()));
                         specie.setRemainingLifeTime();
+                        // (Especie Atual Gerada na IT 1, Fact Population, Fact Population Count + Current new Population Cached)
                         var y = Mutations.reproductionMethod(specie, _population, _populationCount);
                         if (y != null)
                         {
 
-                            var XHashIndex = (int)(MathF.Floor(y.getPosition().X / _populationHashFactor));
-                            var YHashIndex = (int)(MathF.Floor(y.getPosition().Y / _populationHashFactor));
+                            var XHashIndex = (int)(MathF.Floor(y.getPosition().X / _populationHashWidth));
+                            var YHashIndex = (int)(MathF.Floor(y.getPosition().Y / _populationHashHeight));
                             var HashIndex = XHashIndex * 1000 + YHashIndex;
 
                             if (!x.ContainsKey(HashIndex))
@@ -213,10 +216,11 @@ namespace EvolutionProject
                     if (specie.getRemainingLifeTime() <= 0)
                     {
 
-                        var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashFactor));
-                        var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashFactor));
+                        var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+                        var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
                         var HashIndex = XHashIndex * 1000 + YHashIndex;
-
+                        
+                        // Verificar Remove At
                         _population[HashIndex].RemoveAt(i);
                         _populationCount--;
 
