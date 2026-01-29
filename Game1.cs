@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EvolutionProject
 {
@@ -12,23 +13,40 @@ namespace EvolutionProject
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Texture2D _texturaBase;
-        private List<Specie> _population;
         private Boolean _firstIteration = true;
         private Texture2D _texturaFundo;
+        private int _yearsCount = 0;
+        private int _populationCount = DefaultValues.startPopulation;
+        private Dictionary<int, List<Specie>> _population;
+        private int _populationHashWidth, _populationHashHeight, _populationHashFactor;
+
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+
+            // Quanto menor, mais grids
+            _populationHashFactor = DefaultValues.HASH_GRID_SIZE;
+
+            // Quanto maior, menos grids
+            // 192
+            _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
+            // 108
+            _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
+
+
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
             _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
 
             _graphics.IsFullScreen = false;
             _graphics.HardwareModeSwitch = false;
 
+
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1d / 45d);
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / 15d);
+
 
             _graphics.ApplyChanges();
         }
@@ -114,13 +132,21 @@ namespace EvolutionProject
         protected override void Initialize()
         {
 
-            _population = new List<Specie>();
+            _population = new Dictionary<int, List<Specie>>();
 
             for (int i = 0; i < DefaultValues.startPopulation; i++)
             {
 
                 var specie = new Specie();
-                _population.Add(specie);
+                var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+                var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
+                var HashIndex = XHashIndex * 1000 + YHashIndex;
+                if(!_population.ContainsKey(HashIndex)){
+
+                    _population.Add(HashIndex, new List<Specie>());
+
+                }
+                _population[HashIndex].Add(specie);
 
             }
 
@@ -146,41 +172,83 @@ namespace EvolutionProject
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            var x = new List<Specie>();
-            for(int i = _population.Count - 1; i >= 0; i--)
+            Window.Title = "Evolution Simulator: " + _yearsCount + " Years";
+            _yearsCount++;
+
+            var x = new Dictionary<int, List<Specie>>();
+            
+            foreach(List<Specie> species in _population.Values)
             {
 
-                var specie = _population[i];
-
-                if (!_firstIteration)
+                for (int i = species.Count - 1; i >= 0; i--)
                 {
 
-                    //specie.setColor(Mutations.colorMutation(specie.getColor()));
-                    specie.setPosition(Mutations.positionMutation(specie.getPosition()));
-                    specie.setRemainingLifeTime();
-                    var y = Mutations.reproductionMethod(specie, _population);
-                    if(y != null)
+                    var specie = species[i];
+
+                    if (!_firstIteration)
                     {
 
-                        x.Add(y);
+                        //specie.setPosition(Mutations.positionMutation(specie.getPosition()));
+                        specie.setRemainingLifeTime();
+                        // (Especie Atual Gerada na IT 1, Fact Population, Fact Population Count + Current new Population Cached)
+                        var y = Mutations.reproductionMethod(specie, _population, _populationCount);
+                        if (y != null)
+                        {
+
+                            var XHashIndex = (int)(MathF.Floor(y.getPosition().X / _populationHashWidth));
+                            var YHashIndex = (int)(MathF.Floor(y.getPosition().Y / _populationHashHeight));
+                            var HashIndex = XHashIndex * 1000 + YHashIndex;
+
+                            if (!x.ContainsKey(HashIndex))
+                            {
+
+                                x.Add(HashIndex, new List<Specie>());
+
+                            }
+
+                            x[HashIndex].Add(y);
+                            _populationCount++;
+
+                        }
+
+                    }
+
+                    if (specie.getRemainingLifeTime() <= 0)
+                    {
+
+                        var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+                        var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
+                        var HashIndex = XHashIndex * 1000 + YHashIndex;
+                        
+                        // Verificar Remove At
+                        _population[HashIndex].RemoveAt(i);
+                        _populationCount--;
 
                     }
 
                 }
 
-                if (specie.getRemainingLifeTime() <= 0)
-                {
-
-                    _population.RemoveAt(i);
-
-                }
 
             }
 
-            foreach(var specie in x)
+            foreach(List<Specie> species in x.Values)
             {
 
-                _population.Add(specie);
+                for (int i = 0; i < species.Count; i++)
+                {
+                    var XHashIndex = (int)(MathF.Floor(species[i].getPosition().X / _populationHashWidth));
+                    var YHashIndex = (int)(MathF.Floor(species[i].getPosition().Y / _populationHashHeight));
+                    var HashIndex = XHashIndex * 1000 + YHashIndex;
+
+
+                    if (!_population.ContainsKey(HashIndex))
+                    {
+
+                        _population.Add(HashIndex, new List<Specie>());
+
+                    }
+                    _population[HashIndex].Add(species[i]);
+                }
 
             }
 
@@ -195,21 +263,22 @@ namespace EvolutionProject
 
             _spriteBatch.Draw(_texturaFundo, new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight), Color.White);
 
-            foreach (var specie in _population)
+            foreach (List<Specie> species in _population.Values)
             {
-
-                _spriteBatch.Draw(
-                _texturaBase,   
-                specie.getPosition(),
-                null,           
-                specie.getColor(),       
-                0f,              
-                new Vector2(100, 100),
-                0.1f,   
-                SpriteEffects.None, 
-                0f               
-                );
-
+                foreach (Specie specie in species)
+                {
+                    _spriteBatch.Draw(
+                    _texturaBase,
+                    specie.getPosition(),
+                    null,
+                    specie.getColor(),
+                    0f,
+                    new Vector2(100, 100),
+                    0.1f,
+                    SpriteEffects.None,
+                    0f
+                    );
+                }
             }
 
             _firstIteration = false;
