@@ -14,15 +14,17 @@ namespace EvolutionProject
 
         public static Xna.Color defaultColor = new Xna.Color(120, 120, 120);
         public static int defaultLifeTime = 60;
-        public static int startPopulation = 100;
-        public static int maxPopulation = 9000;
+        public static int START_POPULATION = 120;
+        public static int MAX_POPULATION = 5000;
         public static int colorVariationValue = 16;
-        public static int positionVariationValue = 40; // Distância para Nascimento
-        public static int maxReprodutionDistance = 25; // Distancia de Cor
-        public static int maxReproductionPosition = 50; // Distancia para se reproduzir
+        public static int positionVariationValue = 40; 
+        public static int GRID_BASE_MOVEMENT = 2;
+        public static int maxReprodutionDistance = 25;
+        public static int maxReproductionPosition = 50;
         public static int maxChildrenQuantity = 3;
         public static int HASH_GRID_SIZE = 40;
         public static float REPRODUCTION_FACTOR = 0.01f;
+        public static double SIMULATOR_SPEED = 700d;
 
         public static Xna.Vector2 defaultPosition() {
 

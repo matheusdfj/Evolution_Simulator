@@ -1,12 +1,13 @@
-﻿using System;
+﻿using EvolutionProject.Model;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
-using Xna = Microsoft.Xna.Framework;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
-using EvolutionProject.Model;
+using Xna = Microsoft.Xna.Framework;
 
 namespace EvolutionProject
 {
@@ -15,6 +16,23 @@ namespace EvolutionProject
 
         private static int _height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
         private static int _width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+
+        public static bool ReproductionValidation(in Specie specie1, in Specie specie2)
+        {
+
+            if (specie1.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return false;
+            if (specie2.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return false;
+            if (!(Math.Abs(specie1.getColor().R - specie2.getColor().R) <= DefaultValues.maxReprodutionDistance)) return false;
+            if (!(Math.Abs(specie1.getColor().G - specie2.getColor().G) <= DefaultValues.maxReprodutionDistance)) return false;
+            if (!(Math.Abs(specie1.getColor().B - specie2.getColor().B) <= DefaultValues.maxReprodutionDistance)) return false;
+            if (!(Math.Abs(specie1.getPosition().X - specie2.getPosition().X) <= DefaultValues.maxReproductionPosition)) return false;
+            if (!(Math.Abs(specie1.getPosition().Y - specie2.getPosition().Y) <= DefaultValues.maxReproductionPosition)) return false;
+
+            return true;
+
+        }
+        
+
         public static Xna.Color colorMutation(Xna.Color _color)
         {
 
@@ -42,6 +60,19 @@ namespace EvolutionProject
                 );
 
         }
+
+        public static Xna.Vector2 MovementController(Xna.Vector2 _position)
+        {
+
+            int x = Random.Shared.Next(0, 2) * 2 - 1;
+            int y = Random.Shared.Next(0, 2) * 2 - 1;
+
+            return new Xna.Vector2(
+                Math.Clamp(_position.X + (Random.Shared.Next(0, DefaultValues.GRID_BASE_MOVEMENT) * x), 0, _width),
+                Math.Clamp(_position.Y + (Random.Shared.Next(0, DefaultValues.GRID_BASE_MOVEMENT) * x), 0, _height)
+                );
+
+        }
         public static int lifeTimeMutation(int _lifeTime)
         {
 
@@ -64,7 +95,7 @@ namespace EvolutionProject
         public static Specie reproductionMethod(Specie specie, Dictionary<int, List<Specie>> population, int populationCount)
         {
 
-            if (populationCount >= DefaultValues.maxPopulation || specie.getChildrenQuantity() >= DefaultValues.maxChildrenQuantity) return null;
+            if (populationCount >= DefaultValues.MAX_POPULATION) return null;
 
             var x = DefaultValues.REPRODUCTION_FACTOR;
 
@@ -98,20 +129,9 @@ namespace EvolutionProject
                 if (x != specie)
                 {
 
-                    if (Math.Abs(specie.getColor().R - x.getColor().R) <= DefaultValues.maxReprodutionDistance &&
-                        Math.Abs(specie.getColor().G - x.getColor().G) <= DefaultValues.maxReprodutionDistance &&
-                        Math.Abs(specie.getColor().B - x.getColor().B) <= DefaultValues.maxReprodutionDistance)
+                    if (ReproductionValidation(specie, x))
                     {
-
-                        if (Math.Abs(specie.getPosition().X - x.getPosition().X) <= DefaultValues.maxReproductionPosition &&
-                            Math.Abs(specie.getPosition().Y - x.getPosition().Y) <= DefaultValues.maxReproductionPosition)
-                        {
-
-                            return x;
-
-                        }
-
-
+                        return x; 
                     }
 
                 }
@@ -158,6 +178,46 @@ namespace EvolutionProject
 
             Console.WriteLine("Total Enviado: " + candidates.Count);
             return candidates;
+
+        }
+
+        public static Dictionary<int, List<Specie>> PopulationReDraw(Dictionary<int, List<Specie>> _population)
+        {
+
+
+            var _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / DefaultValues.HASH_GRID_SIZE));
+            var _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / DefaultValues.HASH_GRID_SIZE));
+
+            Dictionary<int, List<Specie>> population = new Dictionary<int, List<Specie>>();
+
+            foreach(List<Specie> species in _population.Values)
+            {
+
+                foreach(var specie in species)
+                {
+
+                    specie.setPosition(Mutations.MovementController(specie.getPosition()));
+
+                    var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
+                    var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
+                    var HashIndex = XHashIndex * 1000 + YHashIndex;
+
+                    if (!population.ContainsKey(HashIndex))
+                    {
+
+                        population.Add(HashIndex, new List<Specie>());
+                        
+                    }
+
+                    population[HashIndex].Add(specie);
+
+
+                }
+
+
+            }
+
+            return population;
 
         }
     }

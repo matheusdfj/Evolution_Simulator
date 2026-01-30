@@ -16,25 +16,19 @@ namespace EvolutionProject
         private Boolean _firstIteration = true;
         private Texture2D _texturaFundo;
         private int _yearsCount = 0;
-        private int _populationCount = DefaultValues.startPopulation;
+        private int _populationCount = DefaultValues.START_POPULATION;
         private Dictionary<int, List<Specie>> _population;
-        private int _populationHashWidth, _populationHashHeight, _populationHashFactor;
-
+        private int _populationHashWidth, _populationHashHeight;
 
         public Game1()
         {
+
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
 
-            // Quanto menor, mais grids
-            _populationHashFactor = DefaultValues.HASH_GRID_SIZE;
-
-            // Quanto maior, menos grids
-            // 192
-            _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / _populationHashFactor));
-            // 108
-            _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / _populationHashFactor));
+            _populationHashWidth = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / DefaultValues.HASH_GRID_SIZE));
+            _populationHashHeight = (int)(MathF.Floor(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / DefaultValues.HASH_GRID_SIZE));
 
 
             _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
@@ -45,10 +39,10 @@ namespace EvolutionProject
 
 
             IsFixedTimeStep = true;
-            TargetElapsedTime = TimeSpan.FromSeconds(1d / 15d);
-
+            TargetElapsedTime = TimeSpan.FromSeconds(1d / DefaultValues.SIMULATOR_SPEED);
 
             _graphics.ApplyChanges();
+
         }
 
         private Texture2D CriarBolinhaComBorda(int raio, int espessuraBorda)
@@ -134,7 +128,7 @@ namespace EvolutionProject
 
             _population = new Dictionary<int, List<Specie>>();
 
-            for (int i = 0; i < DefaultValues.startPopulation; i++)
+            for (int i = 0; i < DefaultValues.START_POPULATION; i++)
             {
 
                 var specie = new Specie();
@@ -146,6 +140,7 @@ namespace EvolutionProject
                     _population.Add(HashIndex, new List<Specie>());
 
                 }
+
                 _population[HashIndex].Add(specie);
 
             }
@@ -190,7 +185,7 @@ namespace EvolutionProject
 
                         //specie.setPosition(Mutations.positionMutation(specie.getPosition()));
                         specie.setRemainingLifeTime();
-                        // (Especie Atual Gerada na IT 1, Fact Population, Fact Population Count + Current new Population Cached)
+
                         var y = Mutations.reproductionMethod(specie, _population, _populationCount);
                         if (y != null)
                         {
@@ -251,6 +246,8 @@ namespace EvolutionProject
                 }
 
             }
+
+            _population = Mutations.PopulationReDraw(_population);
 
             base.Update(gameTime);
         }
