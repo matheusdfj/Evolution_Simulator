@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace EvolutionProject
 {
-    public class Game1 : Game
+    public class Main : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -20,7 +20,23 @@ namespace EvolutionProject
         private Dictionary<int, List<Specie>> _population;
         private int _populationHashWidth, _populationHashHeight;
 
-        public Game1()
+        /* NEXT FEATURES
+         * BACKGROUND COLOR SURVIVOR FACTOR BASE
+         * IN-GAME OPTIONS AND PAUSE MENU
+         * SPECIE DATA INTERFACE ONCLICK
+         * SPECIE DATA MODIFICATION INTERFACE ONCLICK
+         * POPULATION DATA MODIFICATION VIA GRID SELECTION
+         * CENTRALIZE START POPULATION
+         * PERLIN NOISE PROCEDURAL BACKGROUND GENERATOR
+         * PERLIN NOISE BACKGROUND TRANSFORMATION TIME LOOP
+         * NEW SPECIE TEXTURE
+         * SPECIE ENERGY DATA
+         * SPECIE RESISTANCE DATA
+         * SPECIE HUNGRY DATA AND HUNGRY FEATURES
+         * SPECIE ATTACK FEATURES
+         */
+
+        public Main()
         {
 
             _graphics = new GraphicsDeviceManager(this);
@@ -135,6 +151,7 @@ namespace EvolutionProject
                 var XHashIndex = (int)(MathF.Floor(specie.getPosition().X / _populationHashWidth));
                 var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
                 var HashIndex = XHashIndex * 1000 + YHashIndex;
+
                 if(!_population.ContainsKey(HashIndex)){
 
                     _population.Add(HashIndex, new List<Specie>());
@@ -183,7 +200,16 @@ namespace EvolutionProject
                     if (!_firstIteration)
                     {
 
-                        //specie.setPosition(Mutations.positionMutation(specie.getPosition()));
+                        /*
+                         
+                        - Reduzir vida atual
+                        - Se movimentar
+                        - Se reproduzir
+                        - Atacar outra população
+                        - Buscar alimento
+                        - Gasto e ganho de energia
+                                                 
+                         */
                         specie.setRemainingLifeTime();
 
                         var y = Mutations.reproductionMethod(specie, _population, _populationCount);
@@ -215,7 +241,6 @@ namespace EvolutionProject
                         var YHashIndex = (int)(MathF.Floor(specie.getPosition().Y / _populationHashHeight));
                         var HashIndex = XHashIndex * 1000 + YHashIndex;
                         
-                        // Verificar Remove At
                         _population[HashIndex].RemoveAt(i);
                         _populationCount--;
 

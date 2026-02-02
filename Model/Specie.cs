@@ -18,6 +18,9 @@ namespace EvolutionProject.Model
         private int remainingLifeTime;
         private Boolean hasChildrenThisYear;
         private int childrenQuantity;
+        private double energy;
+        private double strength;
+        private double movementEnergyCost;
 
         public Specie()
         {
