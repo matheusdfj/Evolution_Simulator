@@ -1,2 +1,2 @@
-﻿using var game = new EvolutionProject.Game1();
+﻿using var game = new EvolutionProject.Main();
 game.Run();
