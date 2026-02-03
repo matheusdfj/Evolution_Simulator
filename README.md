@@ -11,7 +11,7 @@ To run this project locally, you'll need the following installed on your machine
 ### Prerequisites
 
 * **[.NET 10 SDK](https://dotnet.microsoft.com/download)** (Required to build and run)
-* **Visual Studio 2022** or **VS Code** (Recommended for editing)
+* **Visual Studio 2026**
 
 ### Installing
 
@@ -34,5 +34,5 @@ To run the simulation, simply use the dotnet CLI:
 dotnet run
 ```
 
-##License
+## License
 This project is for learning purposes. Feel free to fork and modify it.
