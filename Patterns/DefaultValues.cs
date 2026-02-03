@@ -23,15 +23,15 @@ namespace EvolutionProject
         public static int maxReproductionPosition = 50;
         public static int maxChildrenQuantity = 3;
         public static int HASH_GRID_SIZE = 40;
+        public static int MAP_GRID_SIZE = 60;
         public static float REPRODUCTION_FACTOR = 0.01f;
-        public static double SIMULATOR_SPEED = 700d;
+        public static double SIMULATOR_SPEED = 35d;
+        public static int DISPLAY_WIDTH = 1920;
+        public static int DISPLAY_HEIGHT = 1080;
 
         public static Xna.Vector2 defaultPosition() {
 
-            var width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-            var height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
-
-            return new Vector2(Random.Shared.Next(20, width - 20), Random.Shared.Next(20, height - 20));
+            return new Vector2(Random.Shared.Next(20, DISPLAY_WIDTH - 20), Random.Shared.Next(20, DISPLAY_HEIGHT - 20));
         
         }
 
