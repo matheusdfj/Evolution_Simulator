@@ -1,4 +1,5 @@
 ﻿using EvolutionProject.Model;
+using EvolutionProject.Patterns;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,6 +20,7 @@ namespace EvolutionProject
         private int _populationCount = DefaultValues.START_POPULATION;
         private Dictionary<int, List<Specie>> _population;
         private int _populationHashWidth, _populationHashHeight;
+        private Microsoft.Xna.Framework.Color[] _backgroundPixelsColor;
 
         /* NEXT FEATURES
          * BACKGROUND COLOR SURVIVOR FACTOR BASE
@@ -63,7 +65,6 @@ namespace EvolutionProject
 
         private Texture2D CriarBolinhaComBorda(int raio, int espessuraBorda)
         {
-            // O diâmetro é o dobro do raio (largura total)
             int diametro = raio * 2;
 
             Texture2D textura = new Texture2D(GraphicsDevice, diametro, diametro);
@@ -76,20 +77,18 @@ namespace EvolutionProject
                 int x = i % diametro;
                 int y = i / diametro;
 
-                // Calcula a distância desse pixel até o centro
                 float distancia = Vector2.Distance(new Vector2(x, y), centro);
 
-                // 1. FORA DO CÍRCULO: Transparente (recorta os cantos do quadrado)
                 if (distancia > raio)
                 {
                     dados[i] = Color.Transparent;
                 }
-                // 2. NA BORDA: Pinta de Preto (ou Cinza Escuro para ficar suave)
+
                 else if (distancia > raio - espessuraBorda)
                 {
-                    dados[i] = new Color(20, 20, 20); // Quase preto
+                    dados[i] = new Color(20, 20, 20);
                 }
-                // 3. NO MIOLO: Branco (Isso é importante! O branco absorve a cor que você passar no Draw)
+
                 else
                 {
                     dados[i] = Color.White;
@@ -100,50 +99,13 @@ namespace EvolutionProject
             return textura;
         }
 
-        private Texture2D CriarFundoTermico(int largura, int altura)
-        {
-            Texture2D textura = new Texture2D(GraphicsDevice, largura, altura);
-            Color[] dados = new Color[largura * altura];
-
-            // Otimização: Vamos preencher coluna por coluna
-            for (int x = 0; x < largura; x++)
-            {
-                // Calcula a temperatura deste X (de 0.0 a 1.0)
-                float temperatura = (float)x / (float)largura;
-
-                // Mistura as cores: Começa em Azul Escuro e vai virando Vermelho
-                // Você pode mudar Color.DarkBlue e Color.OrangeRed para o que preferir
-                Color corDaColuna = Color.Lerp(Color.DarkBlue, Color.OrangeRed, temperatura);
-
-                // Preenche todos os pixels verticais dessa coluna com a mesma temperatura
-                for (int y = 0; y < altura; y++)
-                {
-                    dados[x + y * largura] = corDaColuna;
-                }
-            }
-
-            textura.SetData(dados);
-            return textura;
-        }
-
-        public Color GetCorDoAmbiente(Vector2 posicao)
-        {
-            float larguraTela = _graphics.PreferredBackBufferWidth;
-
-            // 1. Descobre a porcentagem da tela (0.0 esquerda -> 1.0 direita)
-            // O Math.Clamp garante que não dê erro se o bicho sair um pouquinho da tela
-            float porcentagemX = Math.Clamp(posicao.X / larguraTela, 0f, 1f);
-
-            // 2. Calcula a cor exata usando a mesma mistura do fundo
-            // IMPORTANTE: Use as MESMAS cores que você usou no CriarFundoTermico
-            return Color.Lerp(Color.DarkBlue, Color.OrangeRed, porcentagemX);
-        }
-
         protected override void Initialize()
         {
 
             _population = new Dictionary<int, List<Specie>>();
 
+            PerlinNoise.SetCornerValues(DefaultValues.DISPLAY_WIDTH, DefaultValues.DISPLAY_HEIGHT);
+            _texturaFundo = new Texture2D(GraphicsDevice, DefaultValues.DISPLAY_WIDTH, DefaultValues.DISPLAY_HEIGHT);
             for (int i = 0; i < DefaultValues.START_POPULATION; i++)
             {
 
@@ -170,13 +132,10 @@ namespace EvolutionProject
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            _texturaFundo = CriarFundoTermico(
-                _graphics.PreferredBackBufferWidth,
-                _graphics.PreferredBackBufferHeight
-            );
+            _texturaFundo.SetData(PerlinNoise.SetPixelNoise(GraphicsDevice));
 
             _texturaBase = CriarBolinhaComBorda(100, 10);
-            //_texturaBase.SetData(new[] { Color.White });
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -200,16 +159,6 @@ namespace EvolutionProject
                     if (!_firstIteration)
                     {
 
-                        /*
-                         
-                        - Reduzir vida atual
-                        - Se movimentar
-                        - Se reproduzir
-                        - Atacar outra população
-                        - Buscar alimento
-                        - Gasto e ganho de energia
-                                                 
-                         */
                         specie.setRemainingLifeTime();
 
                         var y = Mutations.reproductionMethod(specie, _population, _populationCount);
@@ -296,7 +245,7 @@ namespace EvolutionProject
                     specie.getColor(),
                     0f,
                     new Vector2(100, 100),
-                    0.1f,
+                    0.07f,
                     SpriteEffects.None,
                     0f
                     );
