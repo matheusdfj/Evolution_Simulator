@@ -1,4 +1,4 @@
-# Evolution_Simulator
+## Evolution_Simulator
 Natural selection simulator based on Charles Darwin's theory of evolution, generating mutations in observed individuals over the years, analyzing the ideal traits for survival based on skin tone within a vast environment.
 
 #Technologies
@@ -34,5 +34,5 @@ To run the simulation, simply use the dotnet CLI:
 dotnet run
 ```
 
-#License
+##License
 This project is for learning purposes. Feel free to fork and modify it.
