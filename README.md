@@ -17,7 +17,7 @@ To run this project locally, you'll need the following installed on your machine
 
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/SEU_USUARIO/Evolution_Simulator.git](https://github.com/SEU_USUARIO/Evolution_Simulator.git)
+    git clone https://github.com/matheusdfj/Evolution_Simulator.git
     cd Evolution_Simulator
     ```
 
@@ -33,5 +33,6 @@ To run the simulation, simply use the dotnet CLI:
 ```bash
 dotnet run
 ```
+
 #License
 This project is for learning purposes. Feel free to fork and modify it.
